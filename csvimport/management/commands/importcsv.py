@@ -360,11 +360,13 @@ class Command(LabelCommand, CSVParser):
                 for (column, field, foreignkey) in self.mappings:
                     matchdict[field + '__exact'] = getattr(model_instance,
                                                            field, None)
+                dup = True
                 try:
                     self.model.objects.get(**matchdict)
+                except ObjectDoesNotExist:
+                    dup = False
+                if dup:
                     return
-                except:
-                    pass
             try:
                 importing_csv.send(sender=model_instance,
                                    row=dict(zip(self.csvfile[:1][0], row)))
