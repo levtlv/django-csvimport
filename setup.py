@@ -5,7 +5,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-version = '2.11'
+version = '2.2'
 
 with open("README.rst", "r") as fp:
     csvimport_description = fp.read() + "\n"
