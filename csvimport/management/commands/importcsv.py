@@ -29,7 +29,7 @@ except ImportError:
 from django.conf import settings
 from csvimport.parser import CSVParser
 from csvimport.signals import imported_csv, importing_csv
- 
+
 CSVIMPORT_LOG = getattr(settings, 'CSVIMPORT_LOG', 'screen')
 if CSVIMPORT_LOG == 'logger':
     import logging
@@ -121,7 +121,7 @@ class Command(LabelCommand, CSVParser):
         parser.add_argument('csvfile', help='The file system path to the CSV file with the data to import')
         for arg in self.options:
             parser.add_argument('--%s' % arg, **self.options[arg])
-    
+
     # Support for Django 1.9 or earlier
     if StrictVersion(django.get_version()) < StrictVersion('1.10.0'):
         make_options = []
@@ -159,7 +159,7 @@ class Command(LabelCommand, CSVParser):
         else:
             label = options.get('csvfile')
         self.handle_label(label, **options)
-        
+
     def handle_label(self, label, **options):
         """ Handle the circular reference by passing the nested
             save_csvimport function
@@ -259,8 +259,9 @@ class Command(LabelCommand, CSVParser):
             try:
                 if clean:
                     row[column] = self.type_clean(field, row[column], loglist, index)
-            except:
-                pass
+            except Exception as e:
+                print(e);
+
             try:
                 model_instance.__setattr__(field, row[column])
             except:
@@ -268,10 +269,9 @@ class Command(LabelCommand, CSVParser):
                     field = getattr(model_instance, field)
                     if field:
                         value = field.to_python(row[column])
-                except:
-                    if not msg:
-                        msg = 'row %s: Column %s = %s couldnt be set for row' % (index, field, row[column])
-                        loglist.append(msg)
+                except Exception as E:
+                    msg = 'row %s: Column %s = %s Exception: %s' % (index, field, column, str(e))
+                    loglist.append(msg)
 
         return model_instance
 

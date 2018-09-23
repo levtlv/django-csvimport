@@ -15,8 +15,7 @@ class CSVParser(object):
 
     csvfile = []
     charset = ''
-    filehandle = None
-    check_cols = False
+    check_cols = True
     string_types = (type(u''), type(''))
 
     def list_rows(self, rows):
@@ -40,22 +39,15 @@ class CSVParser(object):
 
     def open_csvfile(self, datafile, delimiter=',', reader=True):
         """ Detect file encoding and open appropriately """
-        self.filehandle = open(datafile, 'rb')
-        if not self.charset:
-            import chardet
-            diagnose = chardet.detect(self.filehandle.read())
-            self.charset = diagnose['encoding']
         rows = []
         if reader:
             try:
-                csvfile = codecs.open(datafile, 'r', self.charset)
+                csvfile = csv.reader(open(datafile))
             except IOError:
                 self.error('Could not open specified csv file, %s, or it does not exist' % datafile, 0)
             else:
                 try:
-                    csvgenerator = self.charset_csv_reader(csv_data=csvfile, charset=self.charset, delimiter=delimiter)
-                    rows = [row for row in csvgenerator]
-                    return self.list_rows(rows)
+                    return list(csvfile)
                 except:
                     pass
         # Sometimes encoding is too mashed to be able to open the file as text with csv_reader
